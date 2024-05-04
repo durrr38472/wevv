@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Map with Markers</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwCiftSYFM-WnZ8eJbvbIke3djGliJRHQ&callback=initMap" async defer></script>
+    <script src="/app.js"></script>
+</head>
+<body>
+    <div id="map" style="height: 400px; width: 100%;"></div>
+    <input type="text" id="comment" placeholder="Enter comment">
+    <button onclick="addMarker()">Add Marker</button>
+    <script>
+        let map;
+        let markers = [];
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: -34.397, lng: 150.644},
+                zoom: 8
+            });
+
+            map.addListener('click', function(e) {
+                document.getElementById('comment').value = '';
+                markers.push({
+                    position: e.latLng,
+                    comment: ''
+                });
+            });
+        }
+
+        function addMarker() {
+            let comment = document.getElementById('comment').value;
+            let markerData = markers.pop();
+            markerData.comment = comment;
+
+            let marker = new google.maps.Marker({
+                position: markerData.position,
+                map: map,
+                title: markerData.comment
+            });
+
+            fetch('/markers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(markerData)
+            });
+
+            markers.push(marker);
+        }
+    </script>
+</body>
+</html>
